@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#08050f">
+  <title>Asterline | Mission Control</title>
+  <link rel="icon" type="image/svg+xml" href="icon.svg">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="contrast.css">
+</head>
+<body>
+  <div id="loadingScreen" class="start-screen loading-screen">
+    <div class="start-grid"></div>
+    <div class="loading-content">
+      <div class="brand-mark loading-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+      <p class="eyebrow">ASTERLINE NETWORK</p>
+      <h1>INITIALIZING COMMAND</h1>
+      <div class="loading-track"><i id="loadingProgress"></i></div>
+      <p id="loadingStatus" class="loading-status">CALIBRATING ORBITAL RELAY</p>
+    </div>
+  </div>
+
+  <div id="landingScreen" class="start-screen landing-screen is-hidden">
+    <div class="start-grid"></div>
+    <canvas id="landingCanvas" class="landing-canvas" aria-hidden="true"></canvas>
+    <div class="landing-shell">
+      <div class="landing-brand"><div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div><div><p class="eyebrow">ORBITAL LOGISTICS NETWORK</p><h1>Asterline</h1></div></div>
+      <div class="landing-content">
+        <p class="eyebrow">COMMAND DECK / LOCAL PROFILE</p>
+        <h2>Build routes.<br><em>Move worlds.</em></h2>
+        <p class="landing-copy">Operate an automated space logistics company across a living procedural star system.</p>
+        <div class="landing-actions"><button id="continueButton" class="landing-button primary-button" type="button">CONTINUE COMMAND</button><button id="newGameButton" class="landing-button secondary-button" type="button">NEW COMMAND</button><button id="manageSavesButton" class="landing-button text-button" type="button">MANAGE SAVES</button></div>
+      </div>
+      <div class="landing-footer"><span>SEED 817263 / LOCAL SIMULATION</span><span>BUILD 01.02</span></div>
+      <div id="saveManager" class="save-manager is-hidden"><div class="save-manager-header"><div><p class="eyebrow">LOCAL STORAGE</p><h3>Command Saves</h3></div><button id="closeSavesButton" class="close-button" type="button" aria-label="Close save manager">x</button></div><div id="saveSlot" class="save-slot"></div><p class="save-note">Saves remain on this computer until deleted.</p></div>
+    </div>
+  </div>
+
+  <div id="gameApp" class="app-shell app-hidden">
+    <div id="tutorialOverlay" class="tutorial-overlay is-hidden" role="dialog" aria-modal="true" aria-labelledby="tutorialTitle">
+      <div class="tutorial-card">
+        <div class="tutorial-topline"><span class="eyebrow">COMMAND ORIENTATION</span><span id="tutorialStepLabel">01 / 03</span></div>
+        <div class="tutorial-icon" id="tutorialIcon">+</div>
+        <h2 id="tutorialTitle">Accept a contract</h2>
+        <p id="tutorialText">Start with the contract board. Each offer names an origin, destination, mission type, and reward.</p>
+        <div class="tutorial-dots"><i class="is-active"></i><i></i><i></i></div>
+        <div class="tutorial-actions"><button id="tutorialSkip" class="text-button" type="button">SKIP ORIENTATION</button><button id="tutorialNext" class="primary-button" type="button">NEXT</button></div>
+      </div>
+    </div>
+    <header class="topbar">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></div>
+        <div>
+          <p class="eyebrow">ORBITAL LOGISTICS NETWORK</p>
+          <h1>Asterline</h1>
+        </div>
+      </div>
+      <div class="system-status">
+        <span class="status-dot"></span>
+        <span>SIMULATION ONLINE</span>
+        <span class="status-divider"></span>
+        <span id="seedDisplay">SEED: --</span>
+        <button id="homeButton" class="home-button" type="button" title="Return to home">HOME</button>
+      </div>
+    </header>
+
+    <main class="control-room">
+      <aside class="panel mission-panel">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">OPERATIONS</p>
+            <h2>Mission Queue</h2>
+          </div>
+          <span class="panel-index">01</span>
+        </div>
+
+        <div class="brief-card">
+          <div class="brief-topline"><span id="missionState" class="live-pill">READY</span><label class="mission-select-label" for="missionType">CONTRACT</label><select id="missionType" class="mission-select"><option value="delivery">DELIVERY</option><option value="survey">SURVEY</option><option value="rescue">RESCUE</option><option value="resource">RESOURCE</option></select></div>
+          <h3 id="routeTitle">Awaiting your first route</h3>
+          <p id="routeHint">Select two worlds to begin plotting an automated delivery.</p>
+          <div id="contractMeta" class="contract-meta is-hidden"></div>
+          <div class="brief-route"><span class="route-node origin-node" id="originRouteNode"></span><span class="route-dash"></span><span class="route-node destination-node" id="destinationRouteNode"></span></div>
+          <div class="route-names"><span id="originRouteName">ORIGIN</span><span id="destinationRouteName">DESTINATION</span></div>
+          <div class="mission-actions"><button id="waitButton" type="button" class="secondary-button" disabled>WAIT 30 D</button><button id="launchButton" type="button" class="primary-button" disabled>LAUNCH</button></div>
+        </div>
+        <div class="offer-card"><div class="data-label">AVAILABLE CONTRACTS</div><div id="missionOffers" class="mission-offers"></div></div>
+
+        <div class="telemetry-list">
+          <div class="telemetry-row"><span>ACTIVE FLEET</span><strong id="fleetDisplay">00 <small>CRAFT</small></strong></div>
+          <div class="telemetry-row"><span>AVAILABLE CREDITS</span><strong id="creditsDisplay">12,500 <small>CR</small></strong></div>
+          <div class="telemetry-row"><span>FUEL RESERVE</span><strong id="fuelDisplay">100 <small>UNITS</small></strong></div>
+        </div>
+        <div class="progress-card"><div class="progress-heading"><div class="data-label">COMPANY RANK</div><strong id="rankDisplay">RANK 01</strong></div><div class="xp-track"><i id="xpFill"></i></div><div class="progress-meta"><span id="xpDisplay">0 / 100 XP</span><span id="objectiveCount">0 / 4 DONE</span></div><div class="data-label objective-label">OBJECTIVES</div><div id="objectiveList" class="objective-list"></div></div>
+        <div class="log-card"><div class="data-label">COMMAND LOG</div><div id="commandLog" class="command-log"></div></div>
+
+        <div class="panel-footer"><span class="footer-signal"></span> ALL SYSTEMS NOMINAL</div>
+      </aside>
+
+      <section class="map-stage">
+        <div class="map-toolbar">
+          <div><p class="eyebrow">SYSTEM CHART / SECTOR 7</p><p class="map-caption">Procedurally generated orbital overview</p></div>
+          <div class="zoom-controls" aria-label="Map zoom controls">
+            <button id="zoomOut" class="zoom-button" type="button" aria-label="Zoom out" title="Zoom out">-</button>
+            <button id="zoomReset" class="zoom-button zoom-readout" type="button" aria-label="Reset map view" title="Reset map view">1.0x</button>
+            <button id="zoomIn" class="zoom-button" type="button" aria-label="Zoom in" title="Zoom in">+</button>
+          </div>
+          <div class="clock-controls" aria-label="Simulation controls">
+            <button id="playToggle" class="clock-button" type="button" aria-label="Pause simulation" title="Pause simulation">||</button>
+            <div class="speed-selector" role="group" aria-label="Simulation speed">
+              <button class="speed-button is-active" type="button" data-speed="1">1x</button>
+              <button class="speed-button" type="button" data-speed="4" disabled>4x</button>
+              <button class="speed-button" type="button" data-speed="16" disabled>16x</button>
+            </div>
+          </div>
+          <div class="toolbar-readout"><span class="readout-label">SYSTEM AGE</span><strong id="ageDisplay">000.0 d</strong></div>
+        </div>
+        <canvas id="systemCanvas" aria-label="Procedurally generated solar system map"></canvas>
+        <div id="routeTracker" class="route-tracker is-hidden"><div class="tracker-header"><span class="eyebrow">LIVE ROUTE TRACKING</span><span id="trackerStatus">STANDBY</span></div><strong id="trackerRoute">NO ACTIVE ROUTE</strong><div class="tracker-progress"><i id="trackerProgressFill"></i></div><div class="tracker-metrics"><span><small>REAL ETA</small><b id="trackerEta">--</b></span><span><small>PROGRESS</small><b id="trackerProgress">--</b></span><span><small>WINDOW</small><b id="trackerWindow">--</b></span></div></div>
+        <div class="map-legend">
+          <span><i class="legend-line"></i> ORBITAL PATH</span>
+          <span><i class="legend-dot"></i> CELESTIAL BODY</span>
+          <span><i class="legend-cross"></i> PRIMARY STAR</span>
+        </div>
+        <div class="map-corner corner-tl"></div><div class="map-corner corner-tr"></div><div class="map-corner corner-bl"></div><div class="map-corner corner-br"></div>
+      </section>
+
+      <aside class="panel intel-panel">
+        <div class="panel-heading">
+          <div><p class="eyebrow">NAVIGATION INTELLIGENCE</p><h2 id="intelTitle">System Scan</h2></div>
+          <div class="intel-tabs" role="tablist"><button id="systemTab" class="intel-tab is-active" type="button" role="tab">SYSTEM</button><button id="fleetTab" class="intel-tab" type="button" role="tab">FLEET</button></div>
+          <span class="panel-index">02</span>
+        </div>
+        <div class="scan-summary"><span class="scan-icon">+</span><div class="scan-summary-copy"><strong id="planetCount">-- WORLDS DISCOVERED</strong><p id="discoverySummary">Frontier survey network online</p><div class="discovery-track"><i id="discoveryFill"></i></div><small id="discoveryProgress">NEXT DISCOVERY --</small></div></div>
+        <div class="data-block"><div class="data-label">PRIMARY STAR</div><div class="star-readout"><span class="star-swatch"></span><div><strong id="starName">--</strong><small id="starType">--</small></div></div></div>
+        <div class="data-block"><div class="data-label">KNOWN WORLDS</div><div id="planetList" class="planet-list"></div></div>
+        <div class="data-block selection-block"><div class="data-label">SELECTED WORLD</div><div id="selectionReadout" class="selection-readout"><span class="selection-empty">CLICK A WORLD TO INSPECT</span></div></div>
+        <div class="data-block route-data"><div class="data-label">TRANSFER PREVIEW</div><div id="routeReadout" class="route-readout"><span class="selection-empty">SELECT TWO WORLDS TO PLOT</span></div></div>
+        <div class="data-block signal-block"><div class="data-label">LONG RANGE SIGNAL</div><div class="signal-bars"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div><small>DEEP SPACE RELAY / CONNECTED</small></div>
+        <div id="fleetView" class="fleet-view is-hidden"><div class="data-label">FLEET COMMAND</div><div id="fleetCards" class="fleet-cards"></div><button id="buyAircraftButton" class="fleet-buy-button" type="button">ADD AIRCRAFT</button><small id="fleetCapacityText" class="fleet-capacity">01 / 01 ACTIVE SLOTS</small><div class="fleet-upgrade-heading"><div class="data-label">SHIP UPGRADES</div><strong id="upgradeBudget">0 CR</strong></div><div class="upgrade-list fleet-upgrade-list"><button id="navUpgradeButton" type="button" class="upgrade-button"><span><b>NAVIGATION AI</b><small>REDUCES SHIP TIME</small></span><em>LVL 0</em><strong>2,500 CR</strong></button><button id="tankUpgradeButton" type="button" class="upgrade-button"><span><b>FUEL RESERVE</b><small>+25 MAX FUEL</small></span><em>LVL 0</em><strong>1,500 CR</strong></button><button id="cargoUpgradeButton" type="button" class="upgrade-button"><span><b>CARGO SYSTEMS</b><small>INCREASES REWARD</small></span><em>LVL 0</em><strong>2,000 CR</strong></button><button id="chronoUpgradeButton" type="button" class="upgrade-button"><span><b>CHRONO RELAY</b><small>UNLOCKS TIME SPEED</small></span><em>LVL 0</em><strong>5,000 CR</strong></button></div><small id="saveStatus" class="save-status">LOCAL SAVE READY</small></div>
+        <div class="panel-footer">AST-LIN // BUILD 01.02</div>
+      </aside>
+    </main>
+
+    <footer class="bottombar"><span>ASTERLINE COMMAND // LOCAL SIMULATION</span><span>STEP 01 / SYSTEM GENERATION</span></footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

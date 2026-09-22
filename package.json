@@ -1,0 +1,42 @@
+{
+  "name": "asterline",
+  "version": "0.1.0",
+  "description": "Asterline - procedural solar-system logistics and mission planning",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "package:win": "electron-builder --win nsis"
+  },
+  "devDependencies": {
+    "electron": "^38.2.0",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.asterline.game",
+    "productName": "Asterline",
+    "asar": true,
+    "files": [
+      "index.html",
+      "styles.css",
+      "contrast.css",
+      "script.js",
+      "main.js",
+      "package.json",
+      "icon.ico"
+    ],
+    "directories": {
+      "output": "release"
+    },
+    "icon": "icon.ico",
+    "win": {
+      "target": "nsis"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
